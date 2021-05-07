@@ -17,6 +17,14 @@ def get_sentence():
     file=open("sentences.txt","r")
     line=file.read().splitlines()
     file.close()
+    
+    file=open("history.txt","r")
+    line2=file.read().splitlines()
+    file.close()
+
+    if(len(line2)<3):
+        return line[random.randrange(0,3)]
+    
     return random.choice(line)
 
 def parseReply(sentence,reply):
@@ -29,24 +37,18 @@ def parseReply(sentence,reply):
         
     if(sentence in ["Please tell me more..."]):
         return ''
-    elif(sentence in ["As I have recalled you had said that","You have said earlier that"] and len(line)>5):
+    elif(sentence in ["As I have recalled you had said that","You have said earlier that"]):
     # just pick random from history that is not the past reply
-        sample=line[random.randrange(0,len(line)-2)]
-        for x in range(len(li)):
-            for key, value in rule.items():
-                if(li[x]==key):
-                    li[x]=value
-        str1=" "
-        return str1.join(li)
-    else:
+        sample=line[random.randrange(0,len(line)-1)]
+        li=list(sample.split(' '))
     #normal conversion of string
     #Dictionary
-        for x in range(len(li)):
-            for key, value in rule.items():
-                if(li[x]==key):
-                    li[x]=value
-        str1=" "
-        return str1.join(li)
+    for x in range(len(li)):
+        for key, value in rule.items():
+            if(li[x]==key):
+                li[x]=value
+    str1=" "
+    return str1.join(li)
 
 
 def parse(reply):
@@ -57,11 +59,12 @@ def parse(reply):
 
 def robot(reply):
     """response"""
+    response=""
     # robot does all the computing
     # first get the reply of user
     #second look if same reply happend previously then reply "Yeah I Know" and dont store the reply in history return boolean
     if(not(check_Db(reply))):
-        chatWindow.insert(END,"Robot: Please Reply Something Else..."+"\n","robot")
+        chatWindow.insert(END,"Robot: Earlier you said that"+"\n","robot")
         messageWindow.delete('1.0', END)
     else:
         # third if succesful parse the string as a reply
@@ -84,21 +87,23 @@ def reply():
             #then disply user reply
         chatWindow.insert(END,name+"\n","user")
         #first set the greet of robot to user
-        chatWindow.insert(END,"Robot: Hello "+name+" how's your day?\n","robot")
+        chatWindow.insert(END,"Robot: Hello "+name+" What can I do for you?\n","robot")
         # upon completion of input and submission delet value in textbox
         messageWindow.delete('1.0', END)
     else:
-        reply=""
-        response=""
         #get user reply upon btn press
         reply=messageWindow.get(1.0, "end-1c")
         if(reply=="quit"):
             chatWindow.insert(END,"Robot: Bye Bye\n","robot")
             root.destroy()
-        chatWindow.insert(END,name+": "+reply+"\n","user")
+        elif(reply=="" or reply==" "):
+            chatWindow.insert(END,"Robot: Please input something...\n","robot")
+        else:
+            chatWindow.insert(END,name+": "+reply+"\n","user")
         # the set the robots response
-        response=robot(reply)
-        chatWindow.insert(END,"Robot: "+response+"\n","robot")
+            response=robot(reply)
+            if(response):
+                chatWindow.insert(END,"Robot: "+response+"\n","robot")
         messageWindow.delete('1.0', END)
 
 def par():
